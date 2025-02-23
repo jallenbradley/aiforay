@@ -1,5 +1,6 @@
 node_modules
 venv
+code_options
 
 # Byte-compiled / optimized / DLL files
 *.py[cod]
