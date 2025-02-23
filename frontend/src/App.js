@@ -1,6 +1,6 @@
 import React from 'react';
 import ChatWindow from './components/ChatWindow';
-import TextEditor from './components/TextEditor';
+import MainSection from './components/MainSection';
 import ContextSection from './components/ContextSection';
 import './App.css';
 
@@ -10,7 +10,7 @@ function App() {
       <h1>A few things to do</h1>
       <div className="page-container">
       <ChatWindow />
-      <TextEditor />
+      <MainSection />
       <ContextSection />
       </div>
     </div>
