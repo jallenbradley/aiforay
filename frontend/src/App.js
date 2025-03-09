@@ -1,21 +1,25 @@
 import React from 'react';
 import ChatWindow from './components/ChatWindow';
-import MainSection from './components/MainSection';
+import TextEditor from './components/TextEditor';
 import ContextSection from './components/ContextSection';
 import './App.css';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+const theme = createTheme(); // Default MUI theme (customize later if desired)
 
 function App() {
   return (
-    <div className="App">
-      <h1>A few things to do</h1>
-      <div className="page-container">
-      <ChatWindow />
-      <MainSection />
-      <ContextSection />
+    <ThemeProvider theme={theme}>
+      <div className="App">
+        <h1>Chat me up!</h1>
+        <div className="page-container">
+          <ChatWindow />
+          <TextEditor />
+          <ContextSection />
+        </div>
       </div>
-    </div>
+    </ThemeProvider>
   );
 }
 
 export default App;
-

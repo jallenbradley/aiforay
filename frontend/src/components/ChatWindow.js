@@ -1,4 +1,16 @@
 import React, { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  TextField,
+  Button,
+  Box,
+  CircularProgress,
+} from '@mui/material';
 
 function ChatWindow() {
   const [messages, setMessages] = useState([]);
@@ -11,8 +23,8 @@ function ChatWindow() {
 
     setIsLoading(true);
     setError(null);
-    
-    const messageId = Date.now(); // Simple unique ID
+
+    const messageId = Date.now();
     const newMessages = [...messages, { id: messageId, text: input, sender: 'user' }];
     setMessages(newMessages);
     setInput('');
@@ -23,9 +35,9 @@ function ChatWindow() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: input }),
       });
-      
+
       if (!response.ok) throw new Error('Failed to get response');
-      
+
       const data = await response.json();
       setMessages([...newMessages, { id: Date.now(), text: data.response, sender: 'ai' }]);
     } catch (error) {
@@ -37,33 +49,65 @@ function ChatWindow() {
   };
 
   return (
-    <div className="chat-window" role="region" aria-label="Chat window">
-      {error && <div className="error-message" role="alert">{error}</div>}
-      <div className="message-list">
-        {messages.map((message) => (
-          <div key={message.id} className={`message ${message.sender}`}>
-            {message.text}
-          </div>
-        ))}
-        {isLoading && <div className="loading-indicator">AI is typing...</div>}
-      </div>
-      <div className="input-area">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-          aria-label="Chat message"
-          disabled={isLoading}
-        />
-        <button 
-          onClick={sendMessage} 
-          disabled={isLoading}
+    <Card className="chat-window" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        <Typography variant="h5" component="h2" gutterBottom>
+          Chat
+        </Typography>
+        {error && (
+          <Typography color="error" role="alert" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
+        <List
+          className="message-list"
+          sx={{ flexGrow: 1, overflowY: 'auto', mb: 2 }} 
         >
-          Send
-        </button>
-      </div>
-    </div>
+          {messages.map((message) => (
+            <ListItem
+              key={message.id}
+              className={`message ${message.sender}`}
+              sx={{
+                justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
+                bgcolor: message.sender === 'user' ? '#e6f2ff' : '#f0f0f0',
+                borderRadius: 1,
+                mb: 1,
+                p: 1,
+              }}
+            >
+              <ListItemText primary={message.text} />
+            </ListItem>
+          ))}
+          {isLoading && (
+            <ListItem>
+              <CircularProgress size={24} />
+              <ListItemText primary="AI is typing..." sx={{ ml: 1 }} />
+            </ListItem>
+          )}
+        </List>
+        <Box className="input-area" sx={{ display: 'flex', gap: 1 }}>
+          <TextField
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            placeholder="Type your message..."
+            fullWidth
+            variant="outlined"
+            size="small"
+            aria-label="Chat message"
+            disabled={isLoading}
+          />
+          <Button
+            onClick={sendMessage}
+            disabled={isLoading}
+            variant="contained"
+            color="primary"
+          >
+            Send
+          </Button>
+        </Box>
+      </CardContent>
+    </Card>
   );
 }
 
