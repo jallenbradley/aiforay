@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -17,12 +17,16 @@ function ChatWindow() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const [userSentMessage, setUserSentMessage] = useState(false);
 
   const sendMessage = async () => {
     if (input.trim() === '' || isLoading) return;
 
     setIsLoading(true);
     setError(null);
+    setUserSentMessage(true);
 
     const messageId = Date.now();
     const newMessages = [...messages, { id: messageId, text: input, sender: 'user' }];
@@ -48,10 +52,27 @@ function ChatWindow() {
     }
   };
 
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const isNearBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+    const shouldScroll = userSentMessage || isNearBottom;
+
+    if (shouldScroll) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    if (userSentMessage) {
+      setUserSentMessage(false);
+    }
+  }, [messages, isLoading, userSentMessage]);
+
   return (
-    <Card className="chat-window" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="h5" component="h2" gutterBottom>
+    <Card className="chat-window" sx={{ height: '100%' }}>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2 }}>
+        <Typography variant="h5" component="h2" gutterBottom color="primary">
           Chat
         </Typography>
         {error && (
@@ -59,33 +80,41 @@ function ChatWindow() {
             {error}
           </Typography>
         )}
-        <List
-          className="message-list"
-          sx={{ flexGrow: 1, overflowY: 'auto', mb: 2 }} 
+        <Box
+          ref={messagesContainerRef}
+          sx={{
+            flexGrow: 1,
+            overflowY: 'auto',
+            mb: 2,
+            minHeight: 0, // Crucial for flex overflow
+          }}
         >
-          {messages.map((message) => (
-            <ListItem
-              key={message.id}
-              className={`message ${message.sender}`}
-              sx={{
-                justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
-                bgcolor: message.sender === 'user' ? '#e6f2ff' : '#f0f0f0',
-                borderRadius: 1,
-                mb: 1,
-                p: 1,
-              }}
-            >
-              <ListItemText primary={message.text} />
-            </ListItem>
-          ))}
-          {isLoading && (
-            <ListItem>
-              <CircularProgress size={24} />
-              <ListItemText primary="AI is typing..." sx={{ ml: 1 }} />
-            </ListItem>
-          )}
-        </List>
-        <Box className="input-area" sx={{ display: 'flex', gap: 1 }}>
+          <List className="message-list">
+            {messages.map((message) => (
+              <ListItem
+                key={message.id}
+                className={`message ${message.sender}`}
+                sx={{
+                  justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
+                  bgcolor: message.sender === 'user' ? '#e6f2ff' : '#f0f0f0',
+                  borderRadius: 1,
+                  mb: 1,
+                  p: 1,
+                }}
+              >
+                <ListItemText primary={message.text} />
+              </ListItem>
+            ))}
+            {isLoading && (
+              <ListItem>
+                <CircularProgress size={24} />
+                <ListItemText primary="AI is typing..." sx={{ ml: 1 }} />
+              </ListItem>
+            )}
+            <div ref={messagesEndRef} />
+          </List>
+        </Box>
+        <Box className="input-area" sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
           <TextField
             value={input}
             onChange={(e) => setInput(e.target.value)}

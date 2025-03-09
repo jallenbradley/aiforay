@@ -5,7 +5,7 @@ function ContextSection() {
   return (
     <Card className="context-section" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="h5" component="h2" gutterBottom>
+        <Typography variant="h5" component="h2" gutterBottom color="primary">
           Context
         </Typography>
         <List sx={{ flexGrow: 1, overflowY: 'auto' }}>
